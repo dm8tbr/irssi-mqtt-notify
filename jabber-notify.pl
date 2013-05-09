@@ -60,8 +60,8 @@ $AppName	= "irssi $XMPPServ";
 $Connection = Net::Jabber::Client->new();
 
 my $status = $Connection->Connect( "hostname" => $XMPPServ,
-                          "port" => 5223,
-                          "ssl" => 1 );
+                          "port" => 5222,
+                          "tls" => 1 );
 
 
 
