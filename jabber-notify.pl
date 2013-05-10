@@ -10,6 +10,7 @@ use vars qw($VERSION %IRSSI $AppName $XMPPUser $XMPPPass $XMPPServ $XMPPRecv $te
 
 use Irssi;
 use Net::Jabber qw( Client );
+use utf8;
 
 $VERSION = '0.01';
 %IRSSI = (
@@ -93,6 +94,7 @@ sub sig_message_private ($$$$) {
 	
     my $message = new Net::Jabber::Message();
     my $body = '(PM: '.$nick.') '.$data;
+    utf8::decode($body);
     $message->SetMessage(to=>$XMPPRecv);
     $message->SetMessage(type=>"chat",
                         body=> $body );
@@ -104,14 +106,15 @@ sub sig_print_text ($$$) {
 	return unless Irssi::settings_get_bool('xmpp_show_hilight');
 
 	my ($dest, $text, $stripped) = @_;
-	
+
 	if ($dest->{level} & MSGLEVEL_HILIGHT) {	
         my $message = new Net::Jabber::Message();
         my $body = '['.$dest->{target}.'] '.$stripped;
+	utf8::decode($body);
         $message->SetMessage(to=>$XMPPRecv);
         $message->SetMessage(type=>"chat",
                             body=> $body );
-        $Connection->Send($message);
+	$Connection->Send($message);
 	}
 }
 
