@@ -34,7 +34,7 @@ sub cmd_xmpp_notify {
 
 sub cmd_xmpp_notify_test {
     my $message = new Net::Jabber::Message();
-    my $body = 'wtf?';
+    my $body = 'moo!';
     $message->SetMessage(to=>$XMPPRecv);
     $message->SetMessage(type=>"chat",
                         body=> $body );
