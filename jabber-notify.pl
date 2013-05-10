@@ -133,7 +133,7 @@ sub sig_notify_joined ($$$$$$) {
 }
 
 sub sig_notify_left ($$$$$$) {
-	return unless Irssi::settings_get_bool('growl_show_notify');
+	return unless Irssi::settings_get_bool('xmpp_show_notify');
 	
 	my ($server, $nick, $user, $host, $realname, $away) = @_;
 	
