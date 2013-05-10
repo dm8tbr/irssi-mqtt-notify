@@ -13,12 +13,12 @@ use Net::Jabber qw( Client );
 
 $VERSION = '0.01';
 %IRSSI = (
-	authors		=>	'Peter Krenesky, Based on growl-net.pl script by Alex Mason, Jason Adams (based on the growl.pl script from Growl.info by Nelson Elhage and Toby Peterson)',
-	contact		=>	'kreneskyp@gmail.com, kreneskyp on irc.freenode.net',
+	authors		=>	'Thomas B. Ruecker, Based on Peter Krenesky\'s script, Based on growl-net.pl script by Alex Mason, Jason Adams (based on the growl.pl script from Growl.info by Nelson Elhage and Toby Peterson)',
+	contact		=>	'thomas@ruecker.fi, tbr on irc.freenode.net',
 	name		=>	'XMPP-notify',
 	description	=>	'Sends out notifications via XMPP for Irssi',
 	license		=>	'BSD',
-	url			=>	'http://blogs.osuosl.org/kreneskyp',
+	url		=>	'http://github.com/dm8tbr/irssi-jabber-notify/',
 );
 
 sub cmd_xmpp_notify {
