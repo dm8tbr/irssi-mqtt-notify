@@ -6,7 +6,7 @@
 # Based on growl-net.pl script by Alex Mason, Jason Adams.
 
 use strict;
-use vars qw($VERSION %IRSSI $AppName $XMPPUser $XMPPPass $XMPPServ $XMPPRecv $testing $Connection $j);
+use vars qw($VERSION %IRSSI $AppName $XMPPUser $XMPPPass $XMPPServ $XMPPRes $XMPPRecv $XMPPTLS $XMPPPort $testing $Connection $j);
 
 use Irssi;
 use Net::Jabber qw( Client );
@@ -31,6 +31,8 @@ sub cmd_xmpp_notify {
 	Irssi::print('%G>>%n xmpp_notify_recv : Set to xmpp account to receive message.');;
 	Irssi::print('%G>>%n xmpp_notify_server : Set to the xmpp server host name');
 	Irssi::print('%G>>%n xmpp_notify_pass : Set to the sending accounts jabber password');
+	Irssi::print('%G>>%n xmpp_notify_tls : Set to enable TLS connection to xmpp server');
+	Irssi::print('%G>>%n xmpp_notify_port : Set to the xmpp server port number');
 }
 
 sub cmd_xmpp_notify_test {
@@ -50,19 +52,25 @@ Irssi::settings_add_str($IRSSI{'name'}, 'xmpp_notify_pass', 'password');
 Irssi::settings_add_str($IRSSI{'name'}, 'xmpp_notify_server', 'localhost');
 Irssi::settings_add_str($IRSSI{'name'}, 'xmpp_notify_user', 'irssi');
 Irssi::settings_add_str($IRSSI{'name'}, 'xmpp_notify_recv', 'noone');
+Irssi::settings_add_str($IRSSI{'name'}, 'xmpp_notify_res', '');
+Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_notify_tls', 1);
+Irssi::settings_add_int($IRSSI{'name'}, 'xmpp_notify_port', 5222);
 
 $XMPPUser 	= Irssi::settings_get_str('xmpp_notify_user');
 $XMPPPass 	= Irssi::settings_get_str('xmpp_notify_pass');
 $XMPPServ 	= Irssi::settings_get_str('xmpp_notify_server');
 $XMPPRecv 	= Irssi::settings_get_str('xmpp_notify_recv');
+$XMPPRes 	= Irssi::settings_get_str('xmpp_notify_res');
+$XMPPTLS	= Irssi::settings_get_bool('xmpp_notify_tls');
+$XMPPPort	= Irssi::settings_get_int('xmpp_notify_port');
 $AppName	= "irssi $XMPPServ";
 	
 
 $Connection = Net::Jabber::Client->new();
 
 my $status = $Connection->Connect( "hostname" => $XMPPServ,
-                          "port" => 5222,
-                          "tls" => 1 );
+                          "port" => $XMPPPort,
+                          "tls" => $XMPPTLS );
 
 
 
@@ -76,7 +84,7 @@ if (!(defined($status)))
 
 my @result = $Connection->AuthSend( "username" => $XMPPUser,
                                     "password" => $XMPPPass,
-                                    "resource" => '' );
+                                    "resource" => $XMPPRes );
 
 
 
