@@ -76,8 +76,8 @@ my $status = $Connection->Connect( "hostname" => $XMPPServ,
 
 if (!(defined($status)))
 {
-    Irssi:print("ERROR:  Jabber server is down or connection was not allowed.");
-    Irssi:print ("        ($!)");
+    Irssi::print("ERROR:  Jabber server is down or connection was not allowed.");
+    Irssi::print ("        ($!)");
     return;
 }
 
@@ -90,10 +90,10 @@ my @result = $Connection->AuthSend( "username" => $XMPPUser,
 
 if ($result[0] ne "ok")
 {
-    Irssi:print("ERROR: Authorization failed ($XMPPUser".'@'."$XMPPServ) : $result[0] - $result[1]");
+    Irssi::print("ERROR: Authorization failed ($XMPPUser".'@'."$XMPPServ) : $result[0] - $result[1]");
     return;
 }
-Irssi:print ("Logged into server $XMPPServ  as $XMPPUser ");
+Irssi::print ("Logged into server $XMPPServ  as $XMPPUser ");
 
 sub sig_message_private ($$$$) {
 	return unless Irssi::settings_get_bool('xmpp_show_privmsg');
