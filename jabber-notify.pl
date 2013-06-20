@@ -68,9 +68,14 @@ $XMPPTLS	= Irssi::settings_get_bool('xmpp_notify_tls');
 $XMPPPort	= Irssi::settings_get_int('xmpp_notify_port');
 $AppName	= "irssi $XMPPServ";
 	
-if (!(defined($XMPPDomain)))
+if (!$XMPPDomain)
 {
-	$XMPPDomain = $XMPPServ
+	$XMPPDomain = $XMPPServ;
+}
+
+if (!$XMPPRecv)
+{
+	$XMPPRecv = $XMPPUser.'@'.$XMPPDomain;
 }
 
 $Connection = Net::Jabber::Client->new();
@@ -101,7 +106,7 @@ if ($result[0] ne "ok")
     Irssi::print("ERROR: Authorization failed ($XMPPUser".'@'."$XMPPDomain on server $XMPPServ) : $result[0] - $result[1]");
     return;
 }
-Irssi::print ("Logged into server $XMPPServ as $XMPPUser".'@'."$XMPPDomain");
+Irssi::print ("Logged into server $XMPPServ as $XMPPUser".'@'."$XMPPDomain. Sending notifications to $XMPPRecv.");
 
 sub sig_message_private ($$$$) {
 	return unless Irssi::settings_get_bool('xmpp_show_privmsg');
