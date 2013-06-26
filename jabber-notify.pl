@@ -26,6 +26,7 @@ $VERSION = '0.2';
 sub cmd_xmpp_notify {
   Irssi::print('%G>>%n XMPP-notify can be configured with these settings:');
   Irssi::print('%G>>%n xmpp_show_privmsg : Notify about private messages.');
+  Irssi::print('%G>>%n xmpp_reveal_privmsg : Include content of private messages in notifications.');
   Irssi::print('%G>>%n xmpp_show_hilight : Notify when your name is hilighted.');
   Irssi::print('%G>>%n xmpp_show_notify : Notify when someone on your away list joins or leaves.');
   Irssi::print('%G>>%n xmpp_notify_user : Set to xmpp account to send from.');
@@ -49,6 +50,7 @@ sub cmd_xmpp_notify_test {
 }
 
 Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_privmsg',   1);
+Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_reveal_privmsg', 1);
 Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_hilight',   1);
 Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_notify',    1);
 Irssi::settings_add_str($IRSSI{'name'},  'xmpp_notify_pass',    'password');
@@ -118,7 +120,10 @@ sub sig_message_private ($$$$) {
   my ($server, $data, $nick, $address) = @_;
 
   my $message = new Net::Jabber::Message();
-  my $body = '(PM: '.$nick.') '.$data;
+  my $body = '(Private message from: '.$nick.')';
+  if ((Irssi::settings_get_bool('xmpp_reveal_privmsg'))) {
+    $body = '(PM: '.$nick.') '.$data;
+  }
   utf8::decode($body);
   $message->SetMessage(to=>$XMPPRecv);
   $message->SetMessage(
