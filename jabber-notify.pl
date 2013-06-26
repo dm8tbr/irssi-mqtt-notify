@@ -11,7 +11,7 @@ use vars qw($VERSION %IRSSI $AppName $XMPPUser $XMPPPass $XMPPDomain $XMPPServ $
 use Irssi;
 use Net::Jabber qw( Client );
 use utf8;
-
+ 
 $VERSION = '0.2';
 %IRSSI = (
   authors      =>   'Thomas B. Ruecker, Based on Peter Krenesky\'s script, Based on growl-net.pl script by Alex Mason, Jason Adams (based on the growl.pl script from Growl.info by Nelson Elhage and Toby Peterson)',
