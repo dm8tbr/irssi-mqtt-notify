@@ -1,7 +1,7 @@
 #!/usr/bin/env perl -w
 #
-# This is a simple irssi script to send out notifications ovet the network using
-# Net::XMMP2. Currently, it sends notifications when your name is
+# This is a simple irssi script to send out notifications over the network using
+# Net::Jabber. Currently, it sends notifications when e.g. your name/nick is
 # highlighted, and when you receive private messages.
 # Based on growl-net.pl script by Alex Mason, Jason Adams.
 
