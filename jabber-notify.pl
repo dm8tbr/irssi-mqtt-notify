@@ -14,12 +14,13 @@ use utf8;
 
 $VERSION = '0.01';
 %IRSSI = (
-  authors		=>	'Thomas B. Ruecker, Based on Peter Krenesky\'s script, Based on growl-net.pl script by Alex Mason, Jason Adams (based on the growl.pl script from Growl.info by Nelson Elhage and Toby Peterson)',
-  contact		=>	'thomas@ruecker.fi, tbr on irc.freenode.net',
-  name		=>	'XMPP-notify',
-  description	=>	'Sends out notifications via XMPP for Irssi',
-  license		=>	'BSD',
-  url		=>	'http://github.com/dm8tbr/irssi-jabber-notify/',
+  authors      =>   'Thomas B. Ruecker, Based on Peter Krenesky\'s script, Based on growl-net.pl script by Alex Mason, Jason Adams (based on the growl.pl script from Growl.info by Nelson Elhage and Toby Peterson)',
+  contact      =>   'thomas@ruecker.fi, tbr on irc.freenode.net',
+  name         =>   'XMPP-notify',
+  description  =>   'Sends out notifications via XMPP for Irssi',
+  license      =>   'BSD',
+  url          =>   'http://github.com/dm8tbr/irssi-jabber-notify/',
+
 );
 
 sub cmd_xmpp_notify {
@@ -40,23 +41,24 @@ sub cmd_xmpp_notify_test {
   my $message = new Net::Jabber::Message();
   my $body = 'moo!';
   $message->SetMessage(to=>$XMPPRecv);
-  $message->SetMessage(type=>"chat",
+  $message->SetMessage(
+    type=>"chat",
     body=> $body );
   $Connection->Send($message);
 
 }
 
-Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_privmsg', 1);
-Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_hilight', 1);
-Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_notify', 1);
-Irssi::settings_add_str($IRSSI{'name'}, 'xmpp_notify_pass', 'password');
-Irssi::settings_add_str($IRSSI{'name'}, 'xmpp_notify_server', 'localhost');
-Irssi::settings_add_str($IRSSI{'name'}, 'xmpp_notify_user', 'irssi');
-Irssi::settings_add_str($IRSSI{'name'}, 'xmpp_notify_domain', undef);
-Irssi::settings_add_str($IRSSI{'name'}, 'xmpp_notify_recv', 'noone');
-Irssi::settings_add_str($IRSSI{'name'}, 'xmpp_notify_res', '');
-Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_notify_tls', 1);
-Irssi::settings_add_int($IRSSI{'name'}, 'xmpp_notify_port', 5222);
+Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_privmsg',   1);
+Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_hilight',   1);
+Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_notify',    1);
+Irssi::settings_add_str($IRSSI{'name'},  'xmpp_notify_pass',    'password');
+Irssi::settings_add_str($IRSSI{'name'},  'xmpp_notify_server',  'localhost');
+Irssi::settings_add_str($IRSSI{'name'},  'xmpp_notify_user',    'irssi');
+Irssi::settings_add_str($IRSSI{'name'},  'xmpp_notify_domain',  undef);
+Irssi::settings_add_str($IRSSI{'name'},  'xmpp_notify_recv',    'noone');
+Irssi::settings_add_str($IRSSI{'name'},  'xmpp_notify_res',     '');
+Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_notify_tls',     1);
+Irssi::settings_add_int($IRSSI{'name'},  'xmpp_notify_port',    5222);
 
 $XMPPUser   = Irssi::settings_get_str('xmpp_notify_user');
 $XMPPPass   = Irssi::settings_get_str('xmpp_notify_pass');
@@ -80,7 +82,8 @@ if (!$XMPPRecv)
 
 $Connection = Net::Jabber::Client->new();
 
-my $status = $Connection->Connect( "hostname" => $XMPPServ,
+my $status = $Connection->Connect(
+  "hostname" => $XMPPServ,
   "port" => $XMPPPort,
   "componentname" => $XMPPDomain,
   "tls" => $XMPPTLS );
@@ -95,7 +98,8 @@ if (!(defined($status)))
 }
 
 
-my @result = $Connection->AuthSend( "username" => $XMPPUser,
+my @result = $Connection->AuthSend(
+  "username" => $XMPPUser,
   "password" => $XMPPPass,
   "resource" => $XMPPRes );
 
@@ -117,7 +121,8 @@ sub sig_message_private ($$$$) {
   my $body = '(PM: '.$nick.') '.$data;
   utf8::decode($body);
   $message->SetMessage(to=>$XMPPRecv);
-  $message->SetMessage(type=>"chat",
+  $message->SetMessage(
+    type=>"chat",
     body=> $body );
   $Connection->Send($message);
 
@@ -133,7 +138,8 @@ sub sig_print_text ($$$) {
     my $body = '['.$dest->{target}.'] '.$stripped;
     utf8::decode($body);
     $message->SetMessage(to=>$XMPPRecv);
-    $message->SetMessage(type=>"chat",
+    $message->SetMessage(
+      type=>"chat",
       body=> $body );
     $Connection->Send($message);
   }
@@ -147,7 +153,8 @@ sub sig_notify_joined ($$$$$$) {
   my $message = new Net::Jabber::Message();
   my $body = "<$nick!$user\@$host>\nHas joined $server->{chatnet}";
   $message->SetMessage(to=>$XMPPRecv);
-  $message->SetMessage(type=>"chat",
+  $message->SetMessage(
+    type=>"chat",
     body=> $body );
   $Connection->Send($message);
 
@@ -161,7 +168,8 @@ sub sig_notify_left ($$$$$$) {
   my $message = new Net::Jabber::Message();
   my $body = "<$nick!$user\@$host>\nHas left $server->{chatnet}";
   $message->SetMessage(to=>$XMPPRecv);
-  $message->SetMessage(type=>"chat",
+  $message->SetMessage(
+    type=>"chat",
     body=> $body );
   $Connection->Send($message);
 }
