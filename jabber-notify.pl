@@ -29,6 +29,7 @@ sub cmd_xmpp_notify {
   Irssi::print('%G>>%n xmpp_reveal_privmsg : Include content of private messages in notifications.');
   Irssi::print('%G>>%n xmpp_show_hilight : Notify when your name is hilighted.');
   Irssi::print('%G>>%n xmpp_show_notify : Notify when someone on your away list joins or leaves.');
+  Irssi::print('%G>>%n xmpp_show_topic : Notify about topic changes.');
   Irssi::print('%G>>%n xmpp_notify_user : Set to xmpp account to send from.');
   Irssi::print('%G>>%n xmpp_notify_recv : Set to xmpp account to receive message.');;
   Irssi::print('%G>>%n xmpp_notify_server : Set to the xmpp server host name');
@@ -53,6 +54,7 @@ Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_privmsg',   1);
 Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_reveal_privmsg', 1);
 Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_hilight',   1);
 Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_notify',    1);
+Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_topic',     1);
 Irssi::settings_add_str($IRSSI{'name'},  'xmpp_notify_pass',    'password');
 Irssi::settings_add_str($IRSSI{'name'},  'xmpp_notify_server',  'localhost');
 Irssi::settings_add_str($IRSSI{'name'},  'xmpp_notify_user',    'irssi');
@@ -179,6 +181,19 @@ sub sig_notify_left ($$$$$$) {
   $Connection->Send($message);
 }
 
+sub sig_message_topic {
+  return unless Irssi::settings_get_bool('xmpp_show_topic');
+  my($server, $channel, $topic, $nick, $address) = @_;
+
+  my $message = new Net::Jabber::Message();
+  my $body = 'Topic for '.$channel.': '.$topic;
+  utf8::decode($body);
+  $message->SetMessage(to=>$XMPPRecv);
+  $message->SetMessage(
+    type=>"chat",
+    body=> $body );
+  $Connection->Send($message);
+}
 
 
 Irssi::command_bind('xmpp-notify', 'cmd_xmpp_notify');
@@ -188,6 +203,7 @@ Irssi::signal_add_last('message private', \&sig_message_private);
 Irssi::signal_add_last('print text', \&sig_print_text);
 Irssi::signal_add_last('notifylist joined', \&sig_notify_joined);
 Irssi::signal_add_last('notifylist left', \&sig_notify_left);
+Irssi::signal_add_last('message topic', \&sig_message_topic);
 
 
 Irssi::print('%G>>%n '.$IRSSI{name}.' '.$VERSION.' loaded (/xmpp-notify for help. /xn-test to test.)');
