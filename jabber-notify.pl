@@ -44,7 +44,7 @@ sub cmd_xmpp_notify_test {
                         body=> $body );
     $Connection->Send($message);
 
-} 
+}
 
 Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_privmsg', 1);
 Irssi::settings_add_bool($IRSSI{'name'}, 'xmpp_show_hilight', 1);
@@ -112,7 +112,7 @@ sub sig_message_private ($$$$) {
 	return unless Irssi::settings_get_bool('xmpp_show_privmsg');
 
 	my ($server, $data, $nick, $address) = @_;
-	
+
     my $message = new Net::Jabber::Message();
     my $body = '(PM: '.$nick.') '.$data;
     utf8::decode($body);
@@ -128,7 +128,7 @@ sub sig_print_text ($$$) {
 
 	my ($dest, $text, $stripped) = @_;
 
-	if ($dest->{level} & MSGLEVEL_HILIGHT) {	
+	if ($dest->{level} & MSGLEVEL_HILIGHT) {
         my $message = new Net::Jabber::Message();
         my $body = '['.$dest->{target}.'] '.$stripped;
 	utf8::decode($body);
@@ -141,9 +141,9 @@ sub sig_print_text ($$$) {
 
 sub sig_notify_joined ($$$$$$) {
 	return unless Irssi::settings_get_bool('xmpp_show_notify');
-	
+
 	my ($server, $nick, $user, $host, $realname, $away) = @_;
-	
+
     my $message = new Net::Jabber::Message();
     my $body = "<$nick!$user\@$host>\nHas joined $server->{chatnet}";
     $message->SetMessage(to=>$XMPPRecv);
@@ -155,9 +155,9 @@ sub sig_notify_joined ($$$$$$) {
 
 sub sig_notify_left ($$$$$$) {
 	return unless Irssi::settings_get_bool('xmpp_show_notify');
-	
+
 	my ($server, $nick, $user, $host, $realname, $away) = @_;
-	
+
     my $message = new Net::Jabber::Message();
     my $body = "<$nick!$user\@$host>\nHas left $server->{chatnet}";
     $message->SetMessage(to=>$XMPPRecv);
