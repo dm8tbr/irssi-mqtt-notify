@@ -41,7 +41,7 @@ sub cmd_mqtt_notify {
 }
 
 sub cmd_mqtt_notify_test {
-  my $body = 'moo!';
+  my $body = "Test:\nmoo!";
   my @message_args = @args;
   push(@message_args, "-m", $body);
   system(@message_args) == 0 or Irssi::print("system @args failed: $?");
@@ -62,7 +62,6 @@ Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_port',      1883);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_keepalive', 120);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_qos',       0);
 Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_notify_retain',    0);
-Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_debug',     0);
 
 $MQTTUser      = Irssi::settings_get_str('mqtt_notify_user');
 $MQTTPass      = Irssi::settings_get_str('mqtt_notify_pass');
@@ -74,7 +73,6 @@ $MQTTPort      = Irssi::settings_get_int('mqtt_notify_port');
 $MQTTKeepalive = Irssi::settings_get_int('mqtt_notify_keepalive');
 $MQTTQoS       = Irssi::settings_get_int('mqtt_notify_qos');
 $MQTTRetain    = Irssi::settings_get_bool('mqtt_notify_retain');
-$debug         = Irssi::settings_get_int('mqtt_notify_debug');
 $AppName       = "irssi $MQTTServ";
 
 @args = ("mosquitto_pub", "-h", $MQTTServ, "-p", $MQTTPort, "-q", $MQTTQoS, "-i", $MQTTClient, "-u", $MQTTUser, "-P", $MQTTPass, "-t", $MQTTTopic,);
@@ -90,7 +88,7 @@ sub sig_message_private ($$$$) {
 
   my $body = '(Private message from: '.$nick.')';
   if ((Irssi::settings_get_bool('mqtt_reveal_privmsg'))) {
-    $body = '(PM: '.$nick.') '.$data;
+    $body = '(PM: '.$nick.")\n".$data;
   }
   utf8::decode($body);
   my @message_args = @args;
@@ -106,7 +104,7 @@ sub sig_print_text ($$$) {
   my ($dest, $text, $stripped) = @_;
 
   if ($dest->{level} & MSGLEVEL_HILIGHT) {
-    my $body = '['.$dest->{target}.'] '.$stripped;
+    my $body = '['.$dest->{target}."]\n".$stripped;
     utf8::decode($body);
     my @message_args = @args;
     push(@message_args, "-m", $body);
@@ -140,7 +138,7 @@ sub sig_message_topic {
   return unless Irssi::settings_get_bool('mqtt_show_topic');
   my($server, $channel, $topic, $nick, $address) = @_;
 
-  my $body = 'Topic for '.$channel.': '.$topic;
+  my $body = 'Topic for '.$channel."\n".$topic;
   utf8::decode($body);
   my @message_args = @args;
   push(@message_args, "-m", $body);
