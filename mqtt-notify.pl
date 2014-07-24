@@ -1,13 +1,13 @@
 #!/usr/bin/env perl -w
 #
 # This is a simple irssi script to send out notifications over the network using
-# Net::MQTT. Currently, it sends notifications when e.g. your name/nick is
+# mosquitto_pub. Currently, it sends notifications when e.g. your name/nick is
 # highlighted, and when you receive private messages.
 # Based on jabber-notify.pl script by Peter Krenesky, Thomas Ruecker.
 # Based on growl-net.pl script by Alex Mason, Jason Adams.
 
 use strict;
-use vars qw($VERSION %IRSSI $AppName $MQTTUser $MQTTPass $MQTTServ $MQTTClient $MQTTTopic $MQTTTLS $MQTTPort $MQTTKeepalive $MQTTRetain $MQTTQoS $testing $Connection $Connection_status $debug $message $j);
+use vars qw($VERSION %IRSSI $AppName $MQTTUser $MQTTPass $MQTTServ $MQTTClient $MQTTTopic $MQTTTLS $MQTTPort $MQTTKeepalive $MQTTRetain $MQTTQoS $testing $Connection $Connection_status $debug $message $next_ping @args  $j);
 
 use Irssi;
 use Net::MQTT::Constants;
@@ -47,6 +47,9 @@ sub cmd_mqtt_notify {
 sub cmd_mqtt_notify_test {
 #  my $message = new Net::Jabber::Message();
   my $body = 'moo!';
+  my @message_args = @args;
+  push(@message_args, "-m", $body);
+  system(@message_args) == 0 or Irssi::print("system @args failed: $?");
 #  $message->SetMessage(to=>$XMPPRecv);
 #  $message->SetMessage(
 #    type=>"chat",
@@ -69,7 +72,7 @@ Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_notify_tls',       0);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_port',      1883);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_keepalive', 120);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_qos',       0);
-Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_retain',    0);
+Irssi::settings_add_bool($IRSSI{'name'},  'mqtt_notify_retain',    0);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_debug',     0);
 
 $MQTTUser      = Irssi::settings_get_str('mqtt_notify_user');
@@ -81,10 +84,16 @@ $MQTTTLS       = Irssi::settings_get_bool('mqtt_notify_tls');
 $MQTTPort      = Irssi::settings_get_int('mqtt_notify_port');
 $MQTTKeepalive = Irssi::settings_get_int('mqtt_notify_keepalive');
 $MQTTQoS       = Irssi::settings_get_int('mqtt_notify_qos');
-$MQTTRetain    = Irssi::settings_get_int('mqtt_notify_retain');
+$MQTTRetain    = Irssi::settings_get_bool('mqtt_notify_retain');
 $debug         = Irssi::settings_get_int('mqtt_notify_debug');
 $AppName       = "irssi $MQTTServ";
 
+@args = ("mosquitto_pub", "-h", $MQTTServ, "-p", $MQTTPort, "-q", $MQTTQoS, "-i", $MQTTClient, "-u", $MQTTUser, "-P", $MQTTPass, "-t", $MQTTTopic,);
+if (Irssi::settings_get_bool('mqtt_notify_retain')) {
+  push(@args, "-r");
+}
+
+if (0){
 #$Connection = Net::Jabber::Client->new();
 $Connection = IO::Socket::INET->new(PeerAddr => $MQTTServ.':'.$MQTTPort,
                                     Timeout => $MQTTKeepalive,) or $Connection_status = "Connection failed: $!";
@@ -109,7 +118,7 @@ if (defined($Connection_status))
   Irssi::print("        ($Connection_status)");
   return;
 }
-
+}
 #FIXME just for testing, replace this
 sub send_message {
   my $Connection = shift;
@@ -162,12 +171,19 @@ sub sig_message_private ($$$$) {
     $body = '(PM: '.$nick.') '.$data;
   }
   utf8::decode($body);
-  send_message($Connection,
-               message_type => MQTT_PUBLISH,
-               retain => $MQTTRetain,
-               qos => $MQTTQoS,
-               topic => $MQTTTopic,
-               message => $body,);
+  my @message_args = @args;
+  push(@message_args, "-m", $body);
+  system(@message_args) == 0 or Irssi::print("system @args failed: $?");
+  @args = ("mosquitto-pub", "-h ".$MQTTServ, "-u ".$MQTTUser, "-P ".$MQTTPass, "-t ".$MQTTTopic, "-m '".$body."'",);
+  system(@args) == 0 or Irssi::print('system @args failed: $?');
+
+#  send_message($Connection,
+#               message_type => MQTT_PUBLISH,
+#               retain => $MQTTRetain,
+#               qos => $MQTTQoS,
+#               topic => $MQTTTopic,
+#               message => $body,);
+
 #  $message->SetMessage(to=>$XMPPRecv);
 #  $message->SetMessage(
 #    type=>"chat",
@@ -185,6 +201,9 @@ sub sig_print_text ($$$) {
 #    my $message = new Net::Jabber::Message();
     my $body = '['.$dest->{target}.'] '.$stripped;
     utf8::decode($body);
+    my @message_args = @args;
+    push(@message_args, "-m", $body);
+    system(@message_args) == 0 or Irssi::print("system @args failed: $?");
 #    $message->SetMessage(to=>$XMPPRecv);
 #    $message->SetMessage(
 #      type=>"chat",
@@ -200,6 +219,9 @@ sub sig_notify_joined ($$$$$$) {
 
 #  my $message = new Net::Jabber::Message();
   my $body = "<$nick!$user\@$host>\nHas joined $server->{chatnet}";
+  my @message_args = @args;
+  push(@message_args, "-m", $body);
+  system(@message_args) == 0 or Irssi::print("system @args failed: $?");
 #  $message->SetMessage(to=>$XMPPRecv);
 #  $message->SetMessage(
 #    type=>"chat",
@@ -215,6 +237,9 @@ sub sig_notify_left ($$$$$$) {
 
 #  my $message = new Net::Jabber::Message();
   my $body = "<$nick!$user\@$host>\nHas left $server->{chatnet}";
+  my @message_args = @args;
+  push(@message_args, "-m", $body);
+  system(@message_args) == 0 or Irssi::print("system @args failed: $?");
 #  $message->SetMessage(to=>$XMPPRecv);
 #  $message->SetMessage(
 #    type=>"chat",
@@ -229,6 +254,9 @@ sub sig_message_topic {
 #  my $message = new Net::Jabber::Message();
   my $body = 'Topic for '.$channel.': '.$topic;
   utf8::decode($body);
+  my @message_args = @args;
+  push(@message_args, "-m", $body);
+  system(@message_args) == 0 or Irssi::print("system @args failed: $?");
 #  $message->SetMessage(to=>$XMPPRecv);
 #  $message->SetMessage(
 #    type=>"chat",
