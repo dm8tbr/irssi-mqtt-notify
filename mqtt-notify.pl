@@ -1,12 +1,13 @@
 #!/usr/bin/env perl -w
 #
 # This is a simple irssi script to send out notifications over the network using
-# Net::Jabber. Currently, it sends notifications when e.g. your name/nick is
+# Net::MQTT. Currently, it sends notifications when e.g. your name/nick is
 # highlighted, and when you receive private messages.
+# Based on jabber-notify.pl script by Peter Krenesky, Thomas Ruecker.
 # Based on growl-net.pl script by Alex Mason, Jason Adams.
 
 use strict;
-use vars qw($VERSION %IRSSI $AppName $MQTTUser $MQTTPass $MQTTServ $MQTTClient $MQTTTopic $MQTTTLS $MQTTPort $testing $Connection $j);
+use vars qw($VERSION %IRSSI $AppName $MQTTUser $MQTTPass $MQTTServ $MQTTClient $MQTTTopic $MQTTTLS $MQTTPort $MQTTKeepalive $MQTTQOS $testing $Connection $j);
 
 use Irssi;
 use Net::MQTT::Constants;
@@ -51,27 +52,31 @@ sub cmd_mqtt_notify_test {
 
 }
 
-Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_show_privmsg',   1);
-Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_reveal_privmsg', 1);
-Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_show_hilight',   1);
-Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_show_notify',    1);
-Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_show_topic',     1);
-Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_pass',    'password');
-Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_server',  'localhost');
-Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_user',    'irssi');
-Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_topic',   'test');
-Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_client',  '');
-Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_notify_tls',     0);
-Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_port',    1883);
+Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_show_privmsg',     1);
+Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_reveal_privmsg',   1);
+Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_show_hilight',     1);
+Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_show_notify',      1);
+Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_show_topic',       1);
+Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_pass',      'password');
+Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_server',    'localhost');
+Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_user',      'irssi');
+Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_topic',     'test');
+Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_client',    '');
+Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_notify_tls',       0);
+Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_port',      1883);
+Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_keepalive', 120);
+Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_qos',       0);
 
-$MQTTUser   = Irssi::settings_get_str('mqtt_notify_user');
-$MQTTPass   = Irssi::settings_get_str('mqtt_notify_pass');
-$MQTTServ   = Irssi::settings_get_str('mqtt_notify_server');
-$MQTTTopic  = Irssi::settings_get_str('mqtt_notify_topic');
-$MQTTClient = Irssi::settings_get_str('mqtt_notify_client');
-$MQTTTLS    = Irssi::settings_get_bool('mqtt_notify_tls');
-$MQTTPort   = Irssi::settings_get_int('mqtt_notify_port');
-$AppName    = "irssi $MQTTServ";
+$MQTTUser      = Irssi::settings_get_str('mqtt_notify_user');
+$MQTTPass      = Irssi::settings_get_str('mqtt_notify_pass');
+$MQTTServ      = Irssi::settings_get_str('mqtt_notify_server');
+$MQTTTopic     = Irssi::settings_get_str('mqtt_notify_topic');
+$MQTTClient    = Irssi::settings_get_str('mqtt_notify_client');
+$MQTTTLS       = Irssi::settings_get_bool('mqtt_notify_tls');
+$MQTTPort      = Irssi::settings_get_int('mqtt_notify_port');
+$MQTTKeepalive = Irssi::settings_get_int('mqtt_notify_keepalive');
+$MQTTQOS       = Irssi::settings_get_int('mqtt_notify_qos');
+$AppName       = "irssi $MQTTServ";
 
 #$Connection = Net::Jabber::Client->new();
 
