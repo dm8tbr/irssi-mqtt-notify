@@ -37,7 +37,7 @@ sub cmd_mqtt_notify {
   Irssi::print('%G>>%n mqtt_notify_tls : Set to enable TLS connection to mqtt server. [not implemented]');
   Irssi::print('%G>>%n mqtt_notify_port : Set to the mqtt server port number.');
   Irssi::print('%G>>%n mqtt_notify_qos : Set to the desired mqtt QoS level.');
-  Irssi::print('%G>>%n mqtt_notify_retain : Set to the desired retain flag value.');
+  Irssi::print('%G>>%n mqtt_notify_retain : Set to turn the retain flag on/off.');
 }
 
 sub cmd_mqtt_notify_test {
@@ -56,7 +56,7 @@ Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_pass',      'password');
 Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_server',    'localhost');
 Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_user',      'irssi');
 Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_topic',     'test');
-Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_client',    '');
+Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_client',    'irssi');
 Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_notify_tls',       0);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_port',      1883);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_keepalive', 120);
@@ -94,8 +94,6 @@ sub sig_message_private ($$$$) {
   my @message_args = @args;
   push(@message_args, "-m", $body);
   system(@message_args) == 0 or Irssi::print("system @args failed: $?");
-  @args = ("mosquitto-pub", "-h ".$MQTTServ, "-u ".$MQTTUser, "-P ".$MQTTPass, "-t ".$MQTTTopic, "-m '".$body."'",);
-  system(@args) == 0 or Irssi::print('system @args failed: $?');
 }
 
 sub sig_print_text ($$$) {
