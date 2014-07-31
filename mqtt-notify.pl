@@ -56,7 +56,7 @@ Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_pass',      'password');
 Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_server',    'localhost');
 Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_user',      'irssi');
 Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_topic',     'test');
-Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_client',    'irssi');
+Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_client',    'irssi_');
 Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_notify_tls',       0);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_port',      1883);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_keepalive', 120);
@@ -75,7 +75,7 @@ $MQTTQoS       = Irssi::settings_get_int('mqtt_notify_qos');
 $MQTTRetain    = Irssi::settings_get_bool('mqtt_notify_retain');
 $AppName       = "irssi $MQTTServ";
 
-@args = ("mosquitto_pub", "-h", $MQTTServ, "-p", $MQTTPort, "-q", $MQTTQoS, "-i", $MQTTClient, "-u", $MQTTUser, "-P", $MQTTPass, "-t", $MQTTTopic,);
+@args = ("mosquitto_pub", "-h", $MQTTServ, "-p", $MQTTPort, "-q", $MQTTQoS, "-I", $MQTTClient, "-u", $MQTTUser, "-P", $MQTTPass, "-t", $MQTTTopic,);
 if (Irssi::settings_get_bool('mqtt_notify_retain')) {
   push(@args, "-r");
 }
