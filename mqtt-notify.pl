@@ -11,6 +11,7 @@ use vars qw($VERSION %IRSSI $AppName $MQTTUser $MQTTPass $MQTTServ $MQTTClient $
 
 use Irssi;
 use utf8;
+use POSIX;
  
 $VERSION = '0.1';
 %IRSSI = (
@@ -44,7 +45,7 @@ sub cmd_mqtt_notify_test {
   my $body = "Test:\nmoo!";
   my @message_args = @args;
   push(@message_args, "-m", $body);
-  system(@message_args) == 0 or Irssi::print("system @args failed: $?");
+  mosquitto_pub(@message_args);
 }
 
 Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_show_privmsg',     1);
@@ -93,7 +94,7 @@ sub sig_message_private ($$$$) {
   utf8::decode($body);
   my @message_args = @args;
   push(@message_args, "-m", $body);
-  system(@message_args) == 0 or Irssi::print("system @args failed: $?");
+  mosquitto_pub(@message_args);
 }
 
 sub sig_print_text ($$$) {
@@ -106,7 +107,7 @@ sub sig_print_text ($$$) {
     utf8::decode($body);
     my @message_args = @args;
     push(@message_args, "-m", $body);
-    system(@message_args) == 0 or Irssi::print("system @args failed: $?");
+    mosquitto_pub(@message_args);
   }
 }
 
@@ -118,7 +119,7 @@ sub sig_notify_joined ($$$$$$) {
   my $body = "<$nick!$user\@$host>\nHas joined $server->{chatnet}";
   my @message_args = @args;
   push(@message_args, "-m", $body);
-  system(@message_args) == 0 or Irssi::print("system @args failed: $?");
+  mosquitto_pub(@message_args);
 }
 
 sub sig_notify_left ($$$$$$) {
@@ -129,7 +130,7 @@ sub sig_notify_left ($$$$$$) {
   my $body = "<$nick!$user\@$host>\nHas left $server->{chatnet}";
   my @message_args = @args;
   push(@message_args, "-m", $body);
-  system(@message_args) == 0 or Irssi::print("system @args failed: $?");
+  mosquitto_pub(@message_args);
 }
 
 sub sig_message_topic {
@@ -140,9 +141,23 @@ sub sig_message_topic {
   utf8::decode($body);
   my @message_args = @args;
   push(@message_args, "-m", $body);
-  system(@message_args) == 0 or Irssi::print("system @args failed: $?");
+  mosquitto_pub(@message_args);
 }
 
+sub mosquitto_pub {
+  my @message_args = @_;
+  my $pid = fork();
+  if ($pid) { #This is the irssi main process we forked from
+    Irssi::pidwait_add($pid);
+    return;
+  } elsif (defined $pid) { #This is our fork
+    system(@message_args);
+    POSIX::_exit($?);
+  } else { #Uh, oh, bail!
+    Irssi::print("Couldn't fork for mosquitto_pub!");
+  }
+
+}
 
 Irssi::command_bind('mqtt-notify', 'cmd_mqtt_notify');
 Irssi::command_bind('mqtt-test', 'cmd_mqtt_notify_test');
