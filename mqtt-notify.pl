@@ -40,7 +40,7 @@
 #
 
 use strict;
-use vars qw($VERSION %IRSSI $AppName $MQTTUser $MQTTPass $MQTTServ $MQTTClient $MQTTTopic $MQTTTLS $MQTTPort $MQTTKeepalive $MQTTRetain $MQTTQoS @args  $j);
+use vars qw($VERSION %IRSSI $AppName $MQTTUser $MQTTPass $MQTTServ $MQTTClient $MQTTTopic $MQTTTLS $MQTTPort $MQTTKeepalive $MQTTRetain $MQTTQoS $MQTTCAPath @args  $j);
 
 use Irssi;
 use utf8;
@@ -68,7 +68,8 @@ sub cmd_mqtt_notify {
   Irssi::print('%G>>%n mqtt_notify_topic : Set to mqtt topic to publish message to.');;
   Irssi::print('%G>>%n mqtt_notify_server : Set to the mqtt server host name.');
   Irssi::print('%G>>%n mqtt_notify_pass : Set to the sending accounts jabber password.');
-  Irssi::print('%G>>%n mqtt_notify_tls : Set to enable TLS connection to mqtt server. [not implemented]');
+  Irssi::print('%G>>%n mqtt_notify_tls : Set to enable TLS connection to mqtt server.');
+  Irssi::print('%G>>%n mqtt_notify_capath : Set to path to a directory containing PEM encodec CA certificates that are trusted.');
   Irssi::print('%G>>%n mqtt_notify_port : Set to the mqtt server port number.');
   Irssi::print('%G>>%n mqtt_notify_qos : Set to the desired mqtt QoS level.');
   Irssi::print('%G>>%n mqtt_notify_retain : Set to turn the retain flag on/off.');
@@ -92,6 +93,7 @@ Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_user',      'irssi');
 Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_topic',     'test');
 Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_client',    'irssi_');
 Irssi::settings_add_bool($IRSSI{'name'}, 'mqtt_notify_tls',       0);
+Irssi::settings_add_str($IRSSI{'name'},  'mqtt_notify_capath',    '/etc/ssl/certs/');
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_port',      1883);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_keepalive', 120);
 Irssi::settings_add_int($IRSSI{'name'},  'mqtt_notify_qos',       0);
@@ -103,6 +105,7 @@ $MQTTServ      = Irssi::settings_get_str('mqtt_notify_server');
 $MQTTTopic     = Irssi::settings_get_str('mqtt_notify_topic');
 $MQTTClient    = Irssi::settings_get_str('mqtt_notify_client');
 $MQTTTLS       = Irssi::settings_get_bool('mqtt_notify_tls');
+$MQTTCAPath    = Irssi::settings_get_str('mqtt_notify_capath');
 $MQTTPort      = Irssi::settings_get_int('mqtt_notify_port');
 $MQTTKeepalive = Irssi::settings_get_int('mqtt_notify_keepalive');
 $MQTTQoS       = Irssi::settings_get_int('mqtt_notify_qos');
@@ -112,6 +115,9 @@ $AppName       = "irssi $MQTTServ";
 @args = ("mosquitto_pub", "-h", $MQTTServ, "-p", $MQTTPort, "-q", $MQTTQoS, "-I", $MQTTClient, "-u", $MQTTUser, "-P", $MQTTPass, "-t", $MQTTTopic,);
 if (Irssi::settings_get_bool('mqtt_notify_retain')) {
   push(@args, "-r");
+}
+if (Irssi::settings_get_bool('mqtt_notify_tls')) {
+  push(@args, ("--capath", $MQTTCAPath) );
 }
 
 
